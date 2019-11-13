@@ -111,6 +111,12 @@ class DataGenerator(object):
         meta_test:
             sample (batch_size_l) labelled sequences from the labelled test dataset
             Bonus points if your implementation guarantees seeing all test data eventually 
+        
+        Return: (task_id, is_regression, labelled_sample, unlabelled_sample)
+            task_id: A unique integer / string corresponding to the task. Will be used as a dictionary key. 
+            is_regression: True if it's a regression task, false otherwise. 
+            labelled_sample: Labelled dataset. 
+            unlabelled_sample: None if not relevant. 
         """
 
         ul_data = None
@@ -136,4 +142,3 @@ class DataGenerator(object):
             return sample, next(iter(ul_data))
         
         return sample
-

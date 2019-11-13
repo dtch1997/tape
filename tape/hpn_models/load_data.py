@@ -114,7 +114,8 @@ class DataGenerator(object):
         
         Return: (task_id, is_regression, labelled_sample, unlabelled_sample)
             task_id: A unique integer / string corresponding to the task. Will be used as a dictionary key. 
-            is_regression: True if it's a regression task, false otherwise. 
+            is_regression: True if it's a regression task, False otherwise. 
+            is_per_amino_acid: True if there's one label for each amino acid, False otherwise
             labelled_sample: Labelled dataset. 
             unlabelled_sample: None if not relevant. 
         """

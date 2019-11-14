@@ -37,18 +37,18 @@ class DataGenerator(object):
     def __init__(self,
                  batch_size_u,
                  batch_size_l,
-                 tasks=[(StabilityTask, 'stability/'),
-                        (FluorescenceTask, 'fluorescence/'),
-                        (SecondaryStructureTask, 'secondary_structure/'),
-                        (RemoteHomologyTask, 'remote_homology/'),
-                        (LanguageModelingTask, 'pfam/'),
-                        (ContactMapTask, 'proteinnet/')] # (task, data_folder) tuple list
+                 tasks=[(StabilityTask, 'stability', True, False),
+                        (FluorescenceTask, 'fluorescence', True, False),
+                        (SecondaryStructureTask, 'secondary_structure', False, True),
+                        (RemoteHomologyTask, 'remote_homology', False, False),
+                        (LanguageModelingTask, 'pfam', False, False),
+                        (ContactMapTask, 'proteinnet', False, False)] # (task, id) tuple list
                  ):
         """
         Split the 5 labelled datasets (deterministically) into 4 training + 1 test. 
         Within each training dataset, randomly do an 80/20 train/val split. 
         """
-
+        self.tasks = tasks
         self.batch_size_u = batch_size_u
         self.batch_size_l = batch_size_l
         self.meta_train = []
@@ -120,26 +120,27 @@ class DataGenerator(object):
             unlabelled_sample: None if not relevant. 
         """
 
-        ul_data = None
+        ul_sample = None
         dataset = None
-        selector = np.random.randint(0,4)
+        selector = int(np.random.randint(0,4))
+        task_id = None
         if batch_type == 'meta_train':
             dataset = self.meta_train[selector]
-            ul_data = self.ul_data_train
+            ul_sample = next(iter(self.ul_data_train))
+            task_id, is_regression, is_per_aa = self.tasks[selector][1:]
 
         elif batch_type == 'meta_val':
             dataset = self.meta_train[selector]
-
+            task_id, is_regression, is_per_aa = self.tasks[selector][1:]
         # must be meta_test !!!!
         elif batch_type == 'meta_test':
             dataset = self.meta_test[0][0]
-
+            task_id, is_regression, is_per_aa = self.tasks[-1][1:]
         else:
             raise NotImplementedError('No other case for batch_type')
 
         sample = next(iter(dataset))
-
-        if ul_data:
-            return sample, next(iter(ul_data))
         
-        return sample
+        
+
+        return task_id, is_regression, is_per_aa, sample, ul_sample
